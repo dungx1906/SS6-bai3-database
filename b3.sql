@@ -1,12 +1,23 @@
 create database ss6;
 use ss6;
 
-SELECT s.Email
-FROM Students s
-WHERE NOT EXISTS (
-    SELECT 1 
-    FROM Payments p 
-    WHERE p.student_id = s.student_id 
-      AND p.payment_date >= '2024-01-01' 
-      AND p.payment_date < '2025-01-01'
-);
+SELECT 
+    user_id,
+    COUNT(*) AS total_bookings,
+    SUM(
+        CASE 
+            WHEN status = 'CANCELLED' THEN 1
+            ELSE 0
+        END
+    ) AS cancelled_bookings
+FROM Bookings
+GROUP BY user_id
+HAVING 
+    COUNT(*) >= 10
+    AND
+    SUM(
+        CASE 
+            WHEN status = 'CANCELLED' THEN 1
+            ELSE 0
+        END
+    ) > 5;
